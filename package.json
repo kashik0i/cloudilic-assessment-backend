@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx  src/index.ts --watch",
     "start": "tsx src/index.ts"
   },
   "keywords": [],
@@ -19,12 +20,14 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "openai": "^6.9.0",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

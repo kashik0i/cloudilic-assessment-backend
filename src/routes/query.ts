@@ -1,7 +1,6 @@
-import {type Router as RouterType, Router} from "express";
+import {Router, type Router as RouterType} from "express";
 import { embedText, getCompletion } from "../services/embedder";
-import { vectorStore } from "../services/vectorStore";
-import { cosineSimilarity } from "../services/vectorSearch";
+import {pool} from "../../db";
 
 const router: RouterType = Router();
 
@@ -9,29 +8,29 @@ router.post("/query", async (req, res) => {
     try {
         const { prompt, documentId } = req.body;
 
-        const doc = vectorStore.getDocument(documentId);
-        if (!doc) return res.status(404).json({ error: "Document not found" });
+        const embed = await embedText(prompt);
+        const embedVector = `[${embed.join(',')}]`;
 
-        const promptEmbedding = await embedText(prompt);
+        // Search top K relevant chunks using pgvector
+        const result = await pool.query(
+            `SELECT content
+       FROM chunks
+       WHERE document_id = $1
+       ORDER BY embedding <-> $2::vector
+       LIMIT 5`,
+            [documentId, embedVector]
+        );
 
-        const ranked = doc
-            .map(item => ({
-                ...item,
-                score: cosineSimilarity(promptEmbedding, item.embedding),
-            }))
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
-
-        const context = ranked.map(r => r.chunk).join("\n\n");
+        const context = result.rows.map(r => r.content).join("\n\n");
 
         const answer = await getCompletion(
             `Context:\n${context}\n\nQuestion:\n${prompt}`
         );
 
-        res.json({ answer });
+        res.json({ answer, retrieved: result.rows });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Query failed" });
     }
 });
 

@@ -8,7 +8,7 @@ import {extractPdfText} from "../services/pdfParser";
 // Configure multer to accept any field name but only one PDF file, in memory.
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: {fileSize: 20 * 1024 * 1024, files: 1}, // 20MB cap, single file
+    limits: {fileSize: 50 * 1024 * 1024, files: 1}, // 20MB cap, single file
     fileFilter: (req, file, cb) => {
         if (file.mimetype !== "application/pdf") {
             return cb(new Error("Only application/pdf files are allowed"));
@@ -29,7 +29,7 @@ router.post(
                 if (err instanceof multer.MulterError) {
                     // Map common Multer codes to clearer messages.
                     const codeMap: Record<string, string> = {
-                        LIMIT_FILE_SIZE: "File too large (max 20MB)",
+                        LIMIT_FILE_SIZE: "File too large (max 50MB)",
                         LIMIT_FILE_COUNT: "Only one file allowed",
                         LIMIT_UNEXPECTED_FILE: "Unexpected file type or field"
                     };

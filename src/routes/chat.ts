@@ -36,12 +36,14 @@ router.post('/chat', async (req, res) => {
 
     const memory = await fetchMemory(sessionId, 10);
 
-    // Embed query (cached)
-    const queryEmb = await embedTextCached(prompt);
-    const queryVector = `[${queryEmb.join(',')}]`;
-
     let contextDocs: string[] = [];
+
+    // Only perform RAG if documentId is provided
     if (documentId) {
+      // Embed query (cached)
+      const queryEmb = await embedTextCached(prompt);
+      const queryVector = `[${queryEmb.join(',')}]`;
+
       const chunkRes = await pool.query(
         'SELECT content FROM chunks WHERE document_id = $1 ORDER BY embedding <-> $2::vector LIMIT $3',
         [documentId, queryVector, topK]
@@ -50,11 +52,24 @@ router.post('/chat', async (req, res) => {
     }
 
     const memoryStr = memory.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n');
-    const context = contextDocs.join('\n\n');
 
-    const completionPrompt = `Conversation Memory:\n${memoryStr}\n\nRetrieved Context:\n${context}\n\nUser Question:\n${prompt}\n\nInstructions: Answer using retrieved context. If context is insufficient, say you are unsure. Do not fabricate.`;
+    let completionPrompt: string;
+    let systemMessage: string;
 
-    const answer = await getCompletion(completionPrompt);
+    if (contextDocs.length > 0) {
+      // RAG mode: Use retrieved context
+      const context = contextDocs.join('\n\n');
+      systemMessage = "You are a helpful assistant. Prioritize using the provided context from the document to answer questions. If the context doesn't contain enough information to fully answer the question, you may supplement with your general knowledge.";
+      completionPrompt = `Conversation Memory:\n${memoryStr}\n\nRetrieved Context:\n${context}\n\nUser Question:\n${prompt}`;
+    } else {
+      // No RAG: General conversation mode
+      systemMessage = "You are a helpful AI assistant. Provide accurate and helpful responses based on your knowledge and the conversation history.";
+      completionPrompt = memoryStr
+        ? `Conversation Memory:\n${memoryStr}\n\nUser Question:\n${prompt}`
+        : `User Question:\n${prompt}`;
+    }
+
+    const answer = await getCompletion(completionPrompt, systemMessage);
 
     await pool.query('INSERT INTO interactions(session_id, role, content) VALUES ($1, $2, $3)', [sessionId, 'assistant', answer]);
 

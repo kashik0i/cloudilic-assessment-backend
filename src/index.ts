@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/health", async (req, res) => {
+app.get("/health", async (req, res) => {
     try {
         await pool.query("SELECT 1");
         res.json({ ok: true });
@@ -21,9 +21,9 @@ app.get("/api/health", async (req, res) => {
     }
 });
 
-app.use("/api", pdfRoutes);
-app.use("/api", queryRoutes);
-app.use("/api", chatRoutes);
+app.use("/", pdfRoutes);
+app.use("/", queryRoutes);
+app.use("/", chatRoutes);
 // app.use("/api", workflowRoutes);
 // app.use("/api", documentsRoutes);
 

@@ -19,11 +19,12 @@ export async function embedText(text: string): Promise<number[]> {
     return res.data[0].embedding;
 }
 
-export async function getCompletion(prompt: string): Promise<string> {
+export async function getCompletion(prompt: string, systemMessage?: string): Promise<string> {
+    const defaultSystemMessage = "Use ONLY the provided context to answer.";
     const res = await client.chat.completions.create({
-        model: "gpt-4.1-mini",
+        model: "gpt-4o-mini",
         messages: [
-            { role: "system", content: "Use ONLY the provided context to answer." },
+            { role: "system", content: systemMessage || defaultSystemMessage },
             { role: "user", content: prompt }
         ]
     });

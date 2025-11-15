@@ -47,9 +47,17 @@ Server listens on PORT from .env (default example 4000).
   - Body: { prompt: string, documentId: string }
   - Returns: { answer, retrieved }
 
+- POST /api/chat (json)
+  - Body: { prompt: string, documentId?: string, sessionId?: string, topK?: number }
+  - Returns: { sessionId, answer, retrievedCount }
+  - **RAG Mode** (with documentId): Retrieves relevant chunks from the document and answers based on context
+  - **General Mode** (without documentId): Provides answers based on general knowledge and conversation history
+  - Supports conversation memory across sessions
+  - If sessionId is not provided, a new session will be created
+
 ## Notes
 - Ensure your Postgres has pgvector extension. The provided compose uses ankane/pgvector.
 - Embedding model: text-embedding-3-small (1536 dims); table schema matches.
-- Chat model: gpt-4.1-mini. You can change in src/services/embedder.ts.
+- Chat model: gpt-4o-mini. You can change in src/services/embedder.ts.
 
 

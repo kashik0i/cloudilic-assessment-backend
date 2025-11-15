@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import "dotenv/config";
+import { getOrEmbed } from './embedCache';
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY!
@@ -32,4 +33,8 @@ export async function getCompletion(prompt: string): Promise<string> {
     }
 
     return res.choices[0].message.content ?? "";
+}
+
+export async function embedTextCached(text: string): Promise<number[]> {
+    return getOrEmbed(text);
 }

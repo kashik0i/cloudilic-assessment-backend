@@ -1,6 +1,6 @@
 import {Router, type Router as RouterType} from "express";
 import multer from "multer";
-import {embedText} from "../services/embedder";
+import {embedTextCached} from "../services/embedder";
 import {chunkText} from "../utils/chunkText";
 import {pool} from "../../db";
 import {extractPdfText} from "../services/pdfParser";
@@ -73,7 +73,7 @@ router.post(
             const chunks = chunkText(parsed);
 
             for (const chunk of chunks) {
-                const embedding = await embedText(chunk);
+                const embedding = await embedTextCached(chunk);
                 const embeddingVector = `[${embedding.join(',')}]`;
                 await pool.query(
                     `INSERT INTO chunks (document_id, content, embedding) VALUES ($1, $2, $3::vector)`,

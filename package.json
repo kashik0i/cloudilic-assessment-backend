@@ -7,7 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx  src/index.ts --watch",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm migration:generate src/migrations/$npm_config_name -d src/data-source.ts",
+    "migration:run": "npm run typeorm migration:run -d src/data-source.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +24,12 @@
     "multer": "^2.0.2",
     "openai": "^6.9.0",
     "pdf-parse": "^2.4.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.27",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",

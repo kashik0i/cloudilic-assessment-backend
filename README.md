@@ -43,10 +43,6 @@ Server listens on PORT from .env (default example 4000).
   - Body: a single PDF file
   - Returns: { documentId, chunkCount }
 
-- POST /api/query (json)
-  - Body: { prompt: string, documentId: string }
-  - Returns: { answer, retrieved }
-
 - POST /api/chat (json)
   - Body: { prompt: string, documentId?: string, sessionId?: string, topK?: number }
   - Returns: { sessionId, answer, retrievedCount }

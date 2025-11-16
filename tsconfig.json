@@ -7,11 +7,11 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "target": "esnext",
-    "types": [],
+    "types": ["node", "express"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -42,6 +42,10 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+
+    // TypeORM Decorators Support
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }
